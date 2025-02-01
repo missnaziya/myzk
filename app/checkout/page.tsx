@@ -46,6 +46,26 @@ interface PaymentPayload {
     type: string;
   };
 }
+interface ShippingDetails {
+  id: number;
+  product: string;
+  sourceCity: string;
+  destinationPincode: number;
+  city: string;
+  state: string;
+  destinationRegion: string;
+  mobilezoneNumber: string;
+  tat: number;
+  prepaid: boolean;
+  cod: boolean;
+  reversePickup: boolean;
+  forwardPickup: boolean;
+  destinationCategory: string;
+  pudoServiceable: boolean;
+  b2cCodServiceable: boolean;
+  shippingCost: number;
+
+}
 
 const CheckoutPage = () => {
   const { data: session, status: sessionStatus } = useSession();
@@ -67,6 +87,9 @@ const CheckoutPage = () => {
     orderNotice: "",
   });
   const { products, total, clearCart } = useProductStore();
+  const [shippingDetails, setShippingDetails] = useState<ShippingDetails | null>();
+
+
   const router = useRouter();
   // const makePayment = async (
   //   mobile: string,
@@ -292,7 +315,10 @@ const CheckoutPage = () => {
   //   status: string;
   //   // message: string;
   // }>(null);
-  const [serviceStatus, setServiceStatus] = useState<string | null>(null);
+
+
+
+  const [serviceStatus, setServiceStatus] = useState<boolean>(true);
 
 
   const handlePostalCodeChange = async (
@@ -309,12 +335,19 @@ const CheckoutPage = () => {
       // Replace with the desired pin codes
       const orgPincode = "160036";
       const desPincode = checkoutForm.postalCode;
-
+      setServiceStatus(false)
       
       const result = await checkPostalCodeService(orgPincode, postalCode); // Replace "160036" with orgPincode
-      setServiceStatus(result.ZIPCODE_RESP?.[0]?.MESSAGE);
+      setServiceStatus(result?.success);
+      // setServiceStatus(result.ZIPCODE_RESP?.[0]?.MESSAGE);
+      console.log("result?.shippingCost",result?.shippingDetails?.shippingCost);
+      setShippingDetails(result?.shippingDetails)
+      
+console.log(result?.success)
+
     } else {
-      setServiceStatus(null);
+      // setServiceStatus();
+
     }
   };
 
@@ -386,7 +419,7 @@ const CheckoutPage = () => {
 
               <div className="flex items-center justify-between">
                 <dt className="text-gray-600">Shipping</dt>
-                <dd>₹5</dd>
+                <dd>₹ { serviceStatus &&  shippingDetails?.shippingCost}</dd>
               </div>
 
               <div className="flex items-center justify-between">
@@ -807,18 +840,19 @@ const CheckoutPage = () => {
                       />
                       
                     </div>
-                    {serviceStatus=="SUCCESS" ?<>
+                    {(serviceStatus && checkoutForm.postalCode.length === 6) ?<>
                    
                     <span className="ml-2 text-green-600 text-sm">
-                    *Service Available
+                    *Service Available 
                   </span>
                       
                        </>
-                   :
-                    <span className="ml-2 text-red-600 text-sm">
-                    {serviceStatus}
+                   : ( serviceStatus == false  && checkoutForm.postalCode.length > 0 ) ?
+                   <span className="ml-2 text-red-600 text-sm">
+                      *No Service 
                   </span>
-                   }
+                   : <>
+                   </>}
                     
               
                   </div>

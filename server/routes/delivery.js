@@ -21,6 +21,9 @@ const { bookShipment } = require("../controllers/delivery");
 // } = require('../controllers/contact');
 
 router.route("/verify-pincode").post(verifyPincode);
+
+// router.route("/verify-pincode").post(verifyPincode);
+
 router.route("/book-shipment").post(bookShipment);
 
 module.exports = router;

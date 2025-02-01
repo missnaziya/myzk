@@ -428,6 +428,80 @@ async function getProductById(request, response) {
   return response.status(200).json(product);
 }
 
+ // get city api
+ // get state api
+//  const uniqueCities = await prisma.shippingDetails.findMany({
+//   select: {
+//     city: true,
+//   },
+//   distinct: ['city'],
+// });
+
+// console.log(uniqueCities);
+
+// onload hit 2 api city and state show dropdown city and state
+// on filled of pincode (hit api send weight, pincode) fetch area  adn city and state from db and then 
+// use calculatePrice mehtod then response (city,state,shipment price)
+// display shipment price
+
+
+
+// Price calculation function
+// function calculatePrice(weight, locationType) {
+//   // Pricing table
+//   const pricing = {
+//       "City": { base: 34, per500g: 16, perKgAbove5: 22 },
+//       "Region": { base: 38, per500g: 18, perKgAbove5: 25 },
+//       "Zone": { base: 43, per500g: 24, perKgAbove5: 41 },
+//       "Metro": { base: 59, per500g: 43, perKgAbove5: 82 },
+//       "RoI-A": { base: 61, per500g: 47, perKgAbove5: 88 },
+//       "RoI-B": { base: 65, per500g: 50, perKgAbove5: 95 },
+//       "Spl dest.": { base: 74, per500g: 61, perKgAbove5: 108 }
+//   };
+
+//   // Validate location type
+//   if (!pricing[locationType]) {
+//       throw new Error("Invalid location type");
+//   }
+
+//   // Get pricing details
+//   const { base, per500g, perKgAbove5 } = pricing[locationType];
+
+//   // Base 500 GM cost
+//   let cost = base;
+
+//   // Additional cost for weight between 500 GM and 5 KG
+//   if (weight > 0.5 && weight <= 5) {
+//       let additionalUnits = Math.ceil((weight - 0.5) / 0.5); // Rounds up to nearest 500 GM
+//       cost += additionalUnits * per500g;
+//   } 
+  
+//   // Additional cost for weight above 5 KG
+//   else if (weight > 5) {
+//       let extraAbove5Kg = Math.ceil(weight - 5); // Rounds up to nearest KG
+//       cost += (10 * per500g) + (extraAbove5Kg * perKgAbove5);
+//   }
+
+//   return cost;
+// }
+
+// // ✅ Example Usage:
+// console.log(calculatePrice(0.5, "City")); // 34
+// console.log(calculatePrice(2, "Metro"));  // 59 + (3 * 43) = 188
+// console.log(calculatePrice(6, "RoI-B"));  // 65 + (10 * 50) + 1 * 95 = 710
+
+// // Export the function for use in other files
+// module.exports = calculatePrice;
+
+
+
+// get pincode 
+//return city , state , area 
+
+
+
+
+
 module.exports = {
   getAllProducts,
   createProduct,

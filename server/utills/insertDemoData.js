@@ -1,7 +1,10 @@
-// const { HdrOffSelect } = require("@mui/icons-material");
+const fs = require('fs');
+const csv = require('csv-parser');
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
+const csvFilePath = './shipping-details.csv';
+
 
 const demoProducts = [
   // charger section start
@@ -715,16 +718,71 @@ const demoCategories = [
   // },
 ];
 
-const admins = [
-  
+const admins = [  
   {
     id: "0rjlWofLvPqyZMlz36PZh",
     email: "admin@myzk.com",
     password: "$2a$05$hkkWv68R//Fd05mo6fp/b.IuTCOhGBhSdg.3VICdbWjbRgsnExhwG", //  pswd : admin@123
     role: "admin",
-  },
-     
+  },     
+  {
+    id: "0rjlWofLvPqyZMlz36PZi",
+    email: "test@gmail.com",
+    password: "$2a$05$hkkWv68R//Fd05mo6fp/b.IuTCOhGBhSdg.3VICdbWjbRgsnExhwG", //  pswd : admin@123
+    role: "user",
+  },     
 ]
+
+// Function to insert data
+async function insertCsvData() {
+  const shippingData = [];
+
+  // Read CSV file
+  fs.createReadStream(csvFilePath)
+    .pipe(csv())
+    .on('data', (row) => {
+
+      // console.log("Row",row);
+      
+      // Push each row to the employees array
+      shippingData.push({
+        // id          :     row.id 
+        product      :     row.product,
+        sourceCity    :    row.sourceCity,
+        destinationPincode: row.destinationPincode,
+        city              :  row.city,
+        state             :  row.state,
+        destinationRegion :   row.destinationRegion,
+        zone            :  row.zone,
+        tat              :  parseInt(row.tat),
+        prepaid           : row.prepaid ==  "Y" ? true :false,
+        cod               : row.cod  ==  "Y" ? true :false,
+        reversePickup     : row.reversePickup  ==  "Y" ? true :false,
+        forwardPickup     : row.forwardPickup  ==  "Y" ? true :false,
+        destinationCategory : row.destinationCategory ,
+        pudoServiceable   : row.pudoServiceable  ==  "Y" ? true :false,
+        b2cCodServiceable : row.b2cCodServiceable  ==  "Y" ? true :false,
+
+        
+      });
+    })
+    .on('end', async () => {
+      try {
+        
+        // Insert data using Prisma (bulk insert)
+        const result = await prisma.ShippingDetails.createMany({
+          data: shippingData,
+        });
+
+        console.log(`${result.count} employees inserted successfully!`);
+      } catch (error) {
+        console.error('Error inserting data:', error);
+      } finally {
+        await prisma.$disconnect();
+      }
+    });
+}
+
 
 async function insertDemoData() {
   for (const category of demoCategories) {
@@ -748,8 +806,9 @@ async function insertDemoData() {
   }
   console.log("Admin created successfully!");
 }
-
+insertCsvData()
 insertDemoData()
+
   .catch((error) => {
     console.error(error);
     process.exit(1);
@@ -757,3 +816,15 @@ insertDemoData()
   .finally(async () => {
     await prisma.$disconnect();
   });
+
+
+
+
+
+
+
+
+
+// Path to your CSV file
+
+

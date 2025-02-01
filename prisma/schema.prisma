@@ -133,3 +133,23 @@ model Contact {
   message   String
   createdAt DateTime @default(now())
 }
+
+
+model ShippingDetails {
+  id                   Int     @id @default(autoincrement())
+  product              String
+  sourceCity           String
+  destinationPincode   String
+  city                 String
+  state                String
+  destinationRegion    String
+  zone                 String
+  tat                  Int
+  prepaid              Boolean
+  cod                  Boolean
+  reversePickup        Boolean
+  forwardPickup        Boolean
+  destinationCategory  String
+  pudoServiceable      Boolean
+  b2cCodServiceable    Boolean
+}
