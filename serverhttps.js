@@ -17,9 +17,9 @@ app.prepare().then(() => {
   createServer(httpsOptions, (req, res) => {
     const parsedUrl = parse(req.url, true);
     handle(req, res, parsedUrl);
-  }).listen(443, (err) => {
+  }).listen(3000, (err) => {
     if (err) throw err;
-    console.log('> Ready on https://localhost:443');
+    console.log('> Ready on https://localhost:3000');
     // change to 3000  from  443
   });
 });
