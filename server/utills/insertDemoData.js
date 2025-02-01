@@ -715,6 +715,17 @@ const demoCategories = [
   // },
 ];
 
+const admins = [
+  
+  {
+    id: "0rjlWofLvPqyZMlz36PZh",
+    email: "admin@myzk.com",
+    password: "$2a$05$hkkWv68R//Fd05mo6fp/b.IuTCOhGBhSdg.3VICdbWjbRgsnExhwG", //  pswd : admin@123
+    role: "admin",
+  },
+     
+]
+
 async function insertDemoData() {
   for (const category of demoCategories) {
     await prisma.category.create({
@@ -728,7 +739,14 @@ async function insertDemoData() {
       data: product,
     });
   }
+
   console.log("Demo products inserted successfully!");
+  for (const admin of admins) {
+    await prisma.user.create({
+      data: admin,
+    });
+  }
+  console.log("Admin created successfully!");
 }
 
 insertDemoData()
