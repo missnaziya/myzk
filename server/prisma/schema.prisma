@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = "mysql://root:root@localhost:3306/Myzk"
+}
+
+
+model Product {
+  id                String                   @id @default(uuid())
+  slug              String                   @unique
+  title             String
+  mainImage         String
+  alternateImage1   String
+  alternateImage2   String
+  alternateImage3   String
+  alternateImage4   String
+  price             Int                      @default(0)
+  salePrice         Int                      @default(0)
+  rating            Int                      @default(0)
+  description       String                   @db.VarChar(1500) 
+  manufacturer      String
+  inStock           Int                      @default(1)
+  categoryId        String
+  testcol           String?                  @db.VarChar(45)
+  warrantyDuration  Int?                     // Added field for warranty duration in months
+  category          Category                 @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  Wishlist          Wishlist[]
+  customerOrders    customer_order_product[]
+  warranties        Warranty[]               // Added relation field
+
+  @@index([categoryId], map: "Product_categoryId_fkey")
+}
+
+model Image {
+  imageID   String @id @default(uuid())
+  productID String
+  image     String
+}
+
+model User {
+  id       String     @id @default(uuid())
+  email    String     @unique
+  password String?
+  role     String?    @default("user")
+  Wishlist Wishlist[]
+}
+
+model SupportTicket {
+  id            String   @id @default(uuid())
+  name          String
+  email         String
+  orderNumber   String
+  description   String
+  createdAt     DateTime @default(now())
+}
+
+model Customer_order {
+  id          String                   @id @default(uuid())
+  name        String
+  lastname    String
+  phone       String
+  email       String
+  company     String
+  adress      String
+  apartment   String
+  postalCode  String
+  dateTime    DateTime?                @default(now())
+  status      String
+  city        String
+  country     String
+  orderNotice String?
+  total       Int
+  products    customer_order_product[]
+  Warranties  Warranty[]               // Relation to Warranty
+}
+
+model customer_order_product {
+  id              String         @id @default(uuid())
+  customerOrderId String
+  productId       String
+  quantity        Int
+  customerOrder   Customer_order @relation(fields: [customerOrderId], references: [id])
+  product         Product        @relation(fields: [productId], references: [id])
+
+  @@index([customerOrderId], map: "customer_order_product_customerOrderId_fkey")
+  @@index([productId], map: "customer_order_product_productId_fkey")
+}
+
+
+
+model Category {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  displayName     String    @unique
+  image    String?
+  href     String?
+  products Product[]
+}
+
+model Wishlist {
+  id        String  @id @default(uuid())
+  productId String
+  userId    String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([productId], map: "Wishlist_productId_fkey")
+  @@index([userId], map: "Wishlist_userId_fkey")
+}
+model Warranty {
+  id              String          @id @default(uuid())
+  customerOrderId String
+  productId       String
+  issuedAt        DateTime        @default(now())
+  expiresAt       DateTime
+  customerOrder   Customer_order  @relation(fields: [customerOrderId], references: [id])
+  product         Product         @relation(fields: [productId], references: [id])
+
+  @@index([customerOrderId], map: "Warranty_customerOrderId_fkey")
+  @@index([productId], map: "Warranty_productId_fkey")
+}
+
+
+
+model Contact {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   
+  subject   String   // New field for subject
+  message   String
+  createdAt DateTime @default(now())
+}

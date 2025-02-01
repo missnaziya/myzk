@@ -1,0 +1,14 @@
+# Allow all robots complete access
+User-agent: *
+Disallow:
+
+# Disallow certain parts of the website
+# Disallow: /admin/
+# Disallow: /checkout/
+
+# Allow specific bots to access certain parts
+User-agent: Googlebot
+Disallow: /no-google/
+
+# Sitemap location
+Sitemap: https://www.myzk.in/sitemap.xml
