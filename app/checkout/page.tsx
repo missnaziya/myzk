@@ -64,7 +64,6 @@ interface ShippingDetails {
   pudoServiceable: boolean;
   b2cCodServiceable: boolean;
   shippingCost: number;
-
 }
 
 const CheckoutPage = () => {
@@ -78,17 +77,18 @@ const CheckoutPage = () => {
     // cardNumber: "",
     // expirationDate: "",
     // cvc: "",
-    company: "",
+    company: "India",
+    state: "",
     adress: "",
     apartment: "",
     city: "",
-    country: "",
+    country: "India",
     postalCode: "",
     orderNotice: "",
   });
   const { products, total, clearCart } = useProductStore();
-  const [shippingDetails, setShippingDetails] = useState<ShippingDetails | null>();
-
+  const [shippingDetails, setShippingDetails] =
+    useState<ShippingDetails | null>();
 
   const router = useRouter();
   // const makePayment = async (
@@ -151,16 +151,19 @@ const CheckoutPage = () => {
     productQuantity: number
   ) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/order-product`, {
-      // const response = await fetch(`${ENDPOINT.BASE_URL}/api/order-product`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customerOrderId: orderId,
-          productId,
-          quantity: productQuantity,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/order-product`,
+        {
+          // const response = await fetch(`${ENDPOINT.BASE_URL}/api/order-product`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            customerOrderId: orderId,
+            productId,
+            quantity: productQuantity,
+          }),
+        }
+      );
       if (!response.ok) throw new Error("Failed to add order product");
     } catch (error) {
       console.error("Error adding order product:", error);
@@ -175,6 +178,7 @@ const CheckoutPage = () => {
       // checkoutForm.cardName.length > 0 &&
       // checkoutForm.expirationDate.length > 0 &&
       // checkoutForm.cvc.length > 0 &&
+      checkoutForm.state.length > 0 &&
       checkoutForm.company.length > 0 &&
       checkoutForm.adress.length > 0 &&
       checkoutForm.apartment.length > 0 &&
@@ -226,7 +230,7 @@ const CheckoutPage = () => {
       // sending API request for creating a order
 
       const response = fetch(process.env.NEXT_PUBLIC_BASE_URL + "/api/orders", {
-      // const response = fetch(ENDPOINT.BASE_URL + "/api/orders", {
+        // const response = fetch(ENDPOINT.BASE_URL + "/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -237,6 +241,7 @@ const CheckoutPage = () => {
           phone: checkoutForm.phone,
           email: checkoutForm.email,
           company: checkoutForm.company,
+          state: checkoutForm.state,
           adress: checkoutForm.adress,
           apartment: checkoutForm.apartment,
           postalCode: checkoutForm.postalCode,
@@ -273,6 +278,7 @@ const CheckoutPage = () => {
             company: "",
             adress: "",
             apartment: "",
+            state: "",
             city: "",
             country: "",
             postalCode: "",
@@ -316,10 +322,7 @@ const CheckoutPage = () => {
   //   // message: string;
   // }>(null);
 
-
-
   const [serviceStatus, setServiceStatus] = useState<boolean>(true);
-
 
   const handlePostalCodeChange = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -335,19 +338,20 @@ const CheckoutPage = () => {
       // Replace with the desired pin codes
       const orgPincode = "160036";
       const desPincode = checkoutForm.postalCode;
-      setServiceStatus(false)
-      
+      setServiceStatus(false);
+
       const result = await checkPostalCodeService(orgPincode, postalCode); // Replace "160036" with orgPincode
       setServiceStatus(result?.success);
       // setServiceStatus(result.ZIPCODE_RESP?.[0]?.MESSAGE);
-      console.log("result?.shippingCost",result?.shippingDetails?.shippingCost);
-      setShippingDetails(result?.shippingDetails)
-      
-console.log(result?.success)
+      console.log(
+        "result?.shippingCost",
+        result?.shippingDetails?.shippingCost
+      );
+      setShippingDetails(result?.shippingDetails);
 
+      console.log(result?.success);
     } else {
       // setServiceStatus();
-
     }
   };
 
@@ -419,18 +423,23 @@ console.log(result?.success)
 
               <div className="flex items-center justify-between">
                 <dt className="text-gray-600">Shipping</dt>
-                <dd>₹ { serviceStatus &&  shippingDetails?.shippingCost}</dd>
+                <dd>₹ {serviceStatus && shippingDetails?.shippingCost}</dd>
               </div>
 
               <div className="flex items-center justify-between">
                 <dt className="text-gray-600">Taxes</dt>
-                <dd>₹{total / 5}</dd>
+                <dd>₹0</dd>
+                {/* <dd>₹{total / 5}</dd> */}
               </div>
 
               <div className="flex items-center justify-between border-t border-gray-200 pt-6">
                 <dt className="text-base">Total</dt>
                 <dd className="text-base">
-                  ₹{total === 0 ? 0 : Math.round(total + total / 5 + 5)}
+                  ₹
+                  {serviceStatus
+                    ? (shippingDetails?.shippingCost || 0) + (total || 0)
+                    : 0}
+                  {/* ₹{total === 0 ? 0 : Math.round(total + total / 5 + 5)} */}
                 </dd>
               </div>
             </dl>
@@ -673,27 +682,57 @@ console.log(result?.success)
                 </h2>
 
                 <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-3">
-                  <div>
+                  {/* <div>
                     <label
-                      htmlFor="company"
+                      htmlFor="state"
                       className="block text-sm font-medium text-gray-700"
                     >
-                      State/Company
+                      State
                     </label>
                     <div className="mt-1">
                       <input
                         type="text"
-                        id="company"
-                        name="company"
+                        id="state"
+                        name="state"
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                        value={checkoutForm.company}
+                        value={checkoutForm.state}
                         onChange={(e) =>
                           setCheckoutForm({
                             ...checkoutForm,
-                            company: e.target.value,
+                            state: e.target.value,
                           })
                         }
                       />
+                    </div>
+                  </div> */}
+                  <div>
+                    <label
+                      htmlFor="state"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      State
+                    </label>
+                    <div className="mt-1">
+                      <select
+                        id="state"
+                        name="state"
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                        value={checkoutForm.state}
+                        onChange={(e) =>
+                          setCheckoutForm({
+                            ...checkoutForm,
+                            state: e.target.value,
+                          })
+                        }
+                      >
+                        <option value="">Select a state</option>
+                        <option value="Maharashtra">Maharashtra</option>
+                        <option value="Karnataka">Karnataka</option>
+                        <option value="Tamil Nadu">Tamil Nadu</option>
+                        <option value="Uttar Pradesh">Uttar Pradesh</option>
+                        <option value="West Bengal">West Bengal</option>
+                        {/* Add more states as needed */}
+                      </select>
                     </div>
                   </div>
 
@@ -747,29 +786,33 @@ console.log(result?.success)
                   </div>
 
                   <div>
-                    <label
-                      htmlFor="city"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      City
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        type="text"
-                        id="city"
-                        name="city"
-                        autoComplete="address-level2"
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                        value={checkoutForm.city}
-                        onChange={(e) =>
-                          setCheckoutForm({
-                            ...checkoutForm,
-                            city: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                  </div>
+  <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+    City
+  </label>
+  <div className="mt-1">
+    <select
+      id="city"
+      name="city"
+      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+      value={checkoutForm.city}
+      onChange={(e) =>
+        setCheckoutForm({
+          ...checkoutForm,
+          city: e.target.value,
+        })
+      }
+    >
+      <option value="">Select a city</option>
+      <option value="Mumbai">Mumbai</option>
+      <option value="Bangalore">Bangalore</option>
+      <option value="Chennai">Chennai</option>
+      <option value="Lucknow">Lucknow</option>
+      <option value="Kolkata">Kolkata</option>
+      {/* Add more cities as needed */}
+    </select>
+  </div>
+</div>
+
 
                   <div>
                     <label
@@ -838,23 +881,21 @@ console.log(result?.success)
                         value={checkoutForm.postalCode}
                         onChange={handlePostalCodeChange}
                       />
-                      
                     </div>
-                    {(serviceStatus && checkoutForm.postalCode.length === 6) ?<>
-                   
-                    <span className="ml-2 text-green-600 text-sm">
-                    *Service Available 
-                  </span>
-                      
-                       </>
-                   : ( serviceStatus == false  && checkoutForm.postalCode.length > 0 ) ?
-                   <span className="ml-2 text-red-600 text-sm">
-                      *No Service 
-                  </span>
-                   : <>
-                   </>}
-                    
-              
+                    {serviceStatus && checkoutForm.postalCode.length === 6 ? (
+                      <>
+                        <span className="ml-2 text-green-600 text-sm">
+                          *Service Available
+                        </span>
+                      </>
+                    ) : serviceStatus == false &&
+                      checkoutForm.postalCode.length > 0 ? (
+                      <span className="ml-2 text-red-600 text-sm">
+                        *No Service
+                      </span>
+                    ) : (
+                      <></>
+                    )}
                   </div>
 
                   <div className="sm:col-span-3">
