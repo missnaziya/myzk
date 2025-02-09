@@ -4,11 +4,18 @@ import React, { useEffect, useState } from "react";
 import ENDPOINT from "@/config/appConfig";
 import axios from "axios";
 import { bookShipment } from "@/utils/deliveryDtdc";
+import { signIn, useSession } from "next-auth/react";
 
 const Page = () => {
+  const { data: session, status: sessionStatus } = useSession();
+    // const { data: session }: any = useSession()
+  
+    
   const searchParams = useSearchParams();
   const transactionid = searchParams.get("transactionid");
   const [order, setOrder] = useState<any[]>([]);
+  const [trackData, setTrackData] = useState<string>('');
+
 
   const updateCustomerOrderStatus = async (orderId: string) => {
     const url = `${process.env.NEXT_PUBLIC_BASE_URL}/api/orders`;
@@ -47,11 +54,13 @@ const Page = () => {
             return;
           }
   
-          bookShipment({
+      const response =  await  bookShipment({
+            email:session?.user?.email,
             consignments: [
               {
                 customer_code: "GL017",     // 1
-                service_type_id: "B2C PRIORITY",   
+                service_type_id: "B2C SMART EXPRESS",   
+                // service_type_id: "B2C PRIORITY",   
                 load_type: "NON-DOCUMENT",
                 consignment_type: "Forward",
                 dimension_unit: "cm",
@@ -59,7 +68,7 @@ const Page = () => {
                 width: "70.0",
                 height: "65.0",
                 weight_unit: "kg",
-                weight: "1.0",
+                weight: "0.5",
                 declared_value: destination.total,
                 eway_bill: "",
                 invoice_number: "",
@@ -94,6 +103,10 @@ const Page = () => {
               },
             ],
           });
+
+
+    setTrackData(response.data[0].reference_number)
+
         } catch (error) {
           console.error("Error fetching order data or booking shipment:", error);
         }
@@ -204,6 +217,12 @@ const Page = () => {
           <div className="mt-6 bg-gray-100 p-4 rounded-lg">
             <h2 className="text-sm font-medium text-gray-600">Transaction ID</h2>
             <p className="text-lg font-semibold text-gray-800">{transactionid}</p>
+
+            <h2 className="text-sm font-medium text-gray-600">Tracking ID</h2>
+            <p className="text-lg font-semibold text-gray-800">
+              {/* D25633640 */}
+{trackData}
+              </p>
           </div>
         )}
         <div className="flex justify-center mt-6">

@@ -26,6 +26,22 @@ import { v4 as uuidv4 } from "uuid";
 import { checkPostalCodeService } from "@/utils/deliveryDtdc";
 import { makePayment } from "@/utils/payment";
 import { StartOutlined } from "@mui/icons-material";
+import Select from "react-select";
+
+interface CityOption {
+ city:string
+}
+interface StateOption {
+ state:string
+}
+
+
+
+interface CityDropdownProps {
+  checkoutForm: { city: string };
+  setCheckoutForm: React.Dispatch<React.SetStateAction<{ city: string }>>;
+}
+
 
 interface PayProps {
   name: string;
@@ -68,6 +84,7 @@ interface ShippingDetails {
 
 const CheckoutPage = () => {
   const { data: session, status: sessionStatus } = useSession();
+  
   const [checkoutForm, setCheckoutForm] = useState({
     name: "",
     lastname: "",
@@ -246,7 +263,7 @@ const CheckoutPage = () => {
           apartment: checkoutForm.apartment,
           postalCode: checkoutForm.postalCode,
           status: "order initiated",
-          total: total,
+          total: total+tax+ (shippingDetails?.shippingCost || 0),
           city: checkoutForm.city,
           country: checkoutForm.country,
           orderNotice: checkoutForm.orderNotice,
@@ -270,7 +287,8 @@ const CheckoutPage = () => {
             name: "",
             lastname: "",
             phone: "",
-            email: "",
+            // email: "",
+            email: session?.user?.email|| "",
             // cardName: "",
             // cardNumber: "",
             // expirationDate: "",
@@ -287,7 +305,8 @@ const CheckoutPage = () => {
           clearCart();
           makePayment(
             checkoutForm.phone,
-            Number(Math.round(total + total / 5 + 5) * 100),
+            // Number(Math.round(total + total / 5 + 5) * 100),
+            Number(Math.round(total + (shippingDetails?.shippingCost || 0)+tax) * 100),
             orderId
           );
 
@@ -341,20 +360,73 @@ const CheckoutPage = () => {
       setServiceStatus(false);
 
       const result = await checkPostalCodeService(orgPincode, postalCode); // Replace "160036" with orgPincode
-      setServiceStatus(result?.success);
+                  setServiceStatus(result?.success);
       // setServiceStatus(result.ZIPCODE_RESP?.[0]?.MESSAGE);
-      console.log(
-        "result?.shippingCost",
-        result?.shippingDetails?.shippingCost
-      );
+  
       setShippingDetails(result?.shippingDetails);
 
-      console.log(result?.success);
+
+
+     
     } else {
       // setServiceStatus();
     }
   };
 
+  const [cities, setCities] = useState<CityOption[]>([]);
+  const [states, setStates] = useState<StateOption[]>([]);
+  const [tax, setTax] = useState<number>(0);
+
+useEffect(()=>{
+setCheckoutForm({
+  ...checkoutForm,
+  city: shippingDetails?.city || "",
+  state: shippingDetails?.state || "",
+})
+
+setTax( Math.floor(((shippingDetails?.shippingCost || 0) + (total || 0)) * 0.18))
+  },[shippingDetails])
+  
+  const fetchCities = async () => {
+    try {
+      const response = await axios.get<{ success: boolean; cities: { city: string }[] }>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/delivery/cities`);
+
+
+      if (response.data.success) {
+        setCities(response?.data?.cities)
+          // .map((cityObj) => ({
+          //   label: cityObj.city,
+          //   value: cityObj.city,
+          // }))
+        // );
+      }
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+    }
+  };
+  
+  const fetchStates = async () => {
+    try {
+      const response = await axios.get<{ success: boolean; states: { state: string }[] }>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/delivery/states`);
+
+
+      if (response.data.success) {
+        setStates(response?.data?.states)
+          // .map((cityObj) => ({
+          //   label: cityObj.city,
+          //   value: cityObj.city,
+          // }))
+        // );
+      }
+    } catch (error) {
+      console.error("Error fetching statess:", error);
+    }
+  };
+  useEffect(() => {
+
+    fetchCities();
+    fetchStates();
+  }, []);
   return (
     <div className="bg-white">
       <SectionTitle title="Checkout" path="Home | Cart | Checkout" />
@@ -427,17 +499,22 @@ const CheckoutPage = () => {
               </div>
 
               <div className="flex items-center justify-between">
-                <dt className="text-gray-600">Taxes</dt>
-                <dd>₹0</dd>
+                <dt className="text-gray-600">Taxes 18% </dt>
+                <dd>₹ 
+                {serviceStatus && shippingDetails
+                    // ? (shippingDetails?.shippingCost || 0) + (total || 0)
+                 ? tax
+                    : 0}
                 {/* <dd>₹{total / 5}</dd> */}
+                </dd>
               </div>
 
               <div className="flex items-center justify-between border-t border-gray-200 pt-6">
                 <dt className="text-base">Total</dt>
                 <dd className="text-base">
                   ₹
-                  {serviceStatus
-                    ? (shippingDetails?.shippingCost || 0) + (total || 0)
+                  {serviceStatus && shippingDetails
+                    ? (shippingDetails?.shippingCost || 0) + (total || 0) +tax
                     : 0}
                   {/* ₹{total === 0 ? 0 : Math.round(total + total / 5 + 5)} */}
                 </dd>
@@ -542,7 +619,7 @@ const CheckoutPage = () => {
                     </label>
                     <div className="mt-1">
                       <input
-                        readOnly
+                        // readOnly
                         value={checkoutForm.email}
                         onChange={(e) =>
                           setCheckoutForm({
@@ -726,11 +803,20 @@ const CheckoutPage = () => {
                         }
                       >
                         <option value="">Select a state</option>
-                        <option value="Maharashtra">Maharashtra</option>
+                        {
+states?.map((state:any)=>(
+  <>
+    
+    <option value={state} >{state}</option>
+
+  </>
+))
+}
+                        {/* <option value="Maharashtra">Maharashtra</option>
                         <option value="Karnataka">Karnataka</option>
                         <option value="Tamil Nadu">Tamil Nadu</option>
                         <option value="Uttar Pradesh">Uttar Pradesh</option>
-                        <option value="West Bengal">West Bengal</option>
+                        <option value="West Bengal">West Bengal</option> */}
                         {/* Add more states as needed */}
                       </select>
                     </div>
@@ -783,35 +869,64 @@ const CheckoutPage = () => {
                         }
                       />
                     </div>
-                  </div>
 
+
+                    
+                  </div>
                   <div>
-  <label htmlFor="city" className="block text-sm font-medium text-gray-700">
-    City
-  </label>
-  <div className="mt-1">
-    <select
-      id="city"
-      name="city"
-      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-      value={checkoutForm.city}
-      onChange={(e) =>
-        setCheckoutForm({
-          ...checkoutForm,
-          city: e.target.value,
-        })
-      }
-    >
-      <option value="">Select a city</option>
-      <option value="Mumbai">Mumbai</option>
-      <option value="Bangalore">Bangalore</option>
-      <option value="Chennai">Chennai</option>
-      <option value="Lucknow">Lucknow</option>
-      <option value="Kolkata">Kolkata</option>
-      {/* Add more cities as needed */}
-    </select>
-  </div>
-</div>
+      <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+        City
+      </label>
+      <div className="mt-1">
+      <select
+                        id="city"
+                        name="city"
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                        value={checkoutForm.city}
+                        onChange={(e) =>
+                          setCheckoutForm({
+                            ...checkoutForm,
+                            city: e.target.value,
+                          })
+                        }
+                      >
+
+                        <option value="">Select a City</option>
+
+{
+cities?.map((city:any)=>(
+  <>
+    
+    <option value={city} >{city}</option>
+
+  </>
+))
+}
+
+                        <option value="Karnataka">Karnataka</option>
+                        <option value="Tamil Nadu">Tamil Nadu</option>
+                        <option value="Uttar Pradesh">Uttar Pradesh</option>
+                        <option value="West Bengal">West Bengal</option>
+                        {/* Add more states as needed */}
+                      </select>
+        {/* <Select
+          id="city"
+          name="city"
+          options={cities}
+          isSearchable
+          placeholder="Select a city..."
+          value={cities.find((option) => option.value === checkoutForm.city) || null}
+          onChange={(selectedOption) =>
+            setCheckoutForm({
+              ...checkoutForm,
+              city: selectedOption ? selectedOption.value : "",
+            })
+          }
+          className="w-full"
+        /> */}
+      </div>
+                  </div>
+                  
 
 
                   <div>

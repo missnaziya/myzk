@@ -5,17 +5,22 @@ const { v4: uuidv4 } = require("uuid");
 
 // Payment Controller
 const makePayment = async (req, res) => {
+
+  // const PAYMENT_BASE_URL = process.env.NEXT_PUBLIC_PAYMENT_BASE_URL || "https://api-preprod.phonepe.com/apis/pg-sandbox";
+  // const MERCHANT_ID = process.env.NEXT_PUBLIC_MERCHANT_ID || "M22YF3TMHL5NKUAT";
+  // const PAYMENT_REDIRECT_URL = process.env.NEXT_PUBLIC_PAYMENT_REDIRECT_URL || "http://127.0.0.1:3000";
+  // const SALT_KEY = process.env.NEXT_PUBLIC_SALT_KEY || "7b33559b-571d-4eb5-9b2b-858cb1c0a86b";
+  // const SALT_INDEX = process.env.NEXT_PUBLIC_SALT_INDEX || "1";
+
   const PAYMENT_BASE_URL = process.env.NEXT_PUBLIC_PAYMENT_BASE_URL || "https://api.phonepe.com/apis/hermes";
   const MERCHANT_ID = process.env.NEXT_PUBLIC_MERCHANT_ID || "MYZKONLINE";
   const PAYMENT_REDIRECT_URL = process.env.NEXT_PUBLIC_PAYMENT_REDIRECT_URL || "https://myzk.in";
   const SALT_KEY = process.env.NEXT_PUBLIC_SALT_KEY || "40d6e6d2-5b5a-4e37-8335-e7a05f6ba1a9";
   const SALT_INDEX = process.env.NEXT_PUBLIC_SALT_INDEX || "1";
 
-  console.log("NEXT_PUBLIC_PAYMENT_BASE_URL", PAYMENT_BASE_URL);
-  console.log("NEXT_PUBLIC_MERCHANT_ID", MERCHANT_ID);
-  console.log("NEXT_PUBLIC_PAYMENT_REDIRECT_URL", PAYMENT_REDIRECT_URL);
-  console.log("NEXT_PUBLIC_SALT_KEY", SALT_KEY);
-  console.log("NEXT_PUBLIC_SALT_INDEX", SALT_INDEX);
+
+
+
 
   const { mobile, total, orderId } = req.body;
 

@@ -23,7 +23,7 @@ const Footer = () => {
   const [email, setEmail] = useState('')
 
   const handleSubscribe = () => {
-    console.log(`Subscribed with: ${email}`)
+ 
   }
 
   return (

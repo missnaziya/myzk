@@ -1,14 +1,52 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const axios = require("axios");
+const { sendEmail } = require("../utills/email");
 require("dotenv").config();
 
 const DELIVERY_PINCODE_VERIFY_URL =
   "http://smarttrack.ctbsplus.dtdc.com/ratecalapi/PincodeApiCall";
 const DELIVERY_BOOK_SHIPMENT_URL =
-  "https://demodashboardapi.shipsy.in/api/customer/integration/consignment/softdata";
+// "https://dtdcapi.shipsy.io/api/customer/integration/consignment/softdata";        // live
+  "https://demodashboardapi.shipsy.in/api/customer/integration/consignment/softdata";  // demo
 
 
+
+  const getCities = async (req, res) => {
+    const uniqueCities = await prisma.shippingDetails.findMany({
+      select: {
+        city: true,
+      },
+      distinct: ['city'],
+    });
+  
+    const citiesArray = uniqueCities.map((item) => item.city); // Extract city names into an array
+  
+    console.log(citiesArray);
+  
+    return res.status(200).json({
+      success: true,
+      cities: citiesArray,
+    });
+  };
+  const getStates = async (req, res) => {
+    const uniqueCities = await prisma.shippingDetails.findMany({
+      select: {
+        state: true,
+      },
+      distinct: ['state'],
+    });
+  
+    const statesArray = uniqueCities.map((item) => item.state); // Extract city names into an array
+  
+    console.log(statesArray);
+  
+    return res.status(200).json({
+      success: true,
+      states: statesArray,
+    });
+  };
+  
 
   
   const verifyPincode = async (req, res) => {
@@ -112,8 +150,8 @@ return res.status(200).json({
 };
 
 const bookShipment = async (req, res) => {
-  console.log();
-  const { consignments } = req.body; // The data sent from the frontend
+  // console.log();
+  const {email, consignments } = req.body; // The data sent from the frontend
 
   const url = DELIVERY_BOOK_SHIPMENT_URL;
   const headers = {
@@ -129,6 +167,65 @@ const bookShipment = async (req, res) => {
     // Send data to external API
     const response = await axios.post(url, data, { headers });
 
+
+    // Send an order confirmation email
+const to = email;
+await sendEmail({
+  to: to,  // Admin email
+  subject: "New Order Placed - Myzk",  // Static subject
+  text: "A new order has been placed on Myzk.", // Plain text fallback
+  html: `
+    <html>
+      <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
+        <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; padding: 20px;">
+          <tr>
+            <td style="text-align: center; padding: 20px;">
+              <h1 style="color: #333333;">New Order Placed</h1>
+              <p style="font-size: 16px; color: #555555;">A new order has been placed on Myzk.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 20px; font-size: 16px; color: #333333;">
+              <p><strong>Order ID:</strong> #MYZK123456</p>
+              <p><strong>Customer Name:</strong> John Doe</p>
+              <p><strong>Email Address:</strong> johndoe@example.com</p>
+              <p><strong>Total Amount:</strong> ₹1599.00</p>
+              <h2 style="border-bottom: 2px solid #4CAF50; padding-bottom: 5px;">Order Summary</h2>
+              <table width="100%" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
+                <thead>
+                  <tr>
+                    <th align="left" style="border-bottom: 1px solid #ddd; padding: 8px;">Product</th>
+                    <th align="center" style="border-bottom: 1px solid #ddd; padding: 8px;">Qty</th>
+                    <th align="right" style="border-bottom: 1px solid #ddd; padding: 8px;">Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="border-bottom: 1px solid #ddd; padding: 8px;">Wireless Headphones</td>
+                    <td align="center" style="border-bottom: 1px solid #ddd; padding: 8px;">1</td>
+                    <td align="right" style="border-bottom: 1px solid #ddd; padding: 8px;">₹999.00</td>
+                  </tr>
+                  <tr>
+                    <td style="border-bottom: 1px solid #ddd; padding: 8px;">Phone Case</td>
+                    <td align="center" style="border-bottom: 1px solid #ddd; padding: 8px;">2</td>
+                    <td align="right" style="border-bottom: 1px solid #ddd; padding: 8px;">₹300.00</td>
+                  </tr>
+                </tbody>
+              </table>
+              <p style="text-align: right; font-size: 18px; margin-top: 10px;"><strong>Grand Total: ₹1599.00</strong></p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 20px; text-align: center;">
+              <a href="https://myzk.in" style="display: inline-block; padding: 10px 20px; font-size: 16px; color: #ffffff; background-color: #4CAF50; border-radius: 5px; text-decoration: none;">View Order Details</a>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `
+});
+
     // Send the external API's response back to the frontend
     res.status(200).json(response.data);
   } catch (error) {
@@ -136,4 +233,4 @@ const bookShipment = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-module.exports = { verifyPincode, bookShipment };
+module.exports = { verifyPincode, bookShipment,getCities,getStates };

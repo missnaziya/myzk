@@ -112,6 +112,7 @@ try {
 
 const bookShipment = async (data) => {
   console.log("bookShipment",bookShipment);
+  console.log("data",data);
   
   const url = `${process.env.NEXT_PUBLIC_BASE_URL}/api/delivery/book-shipment`; // Your backend URL
 
@@ -128,7 +129,7 @@ const bookShipment = async (data) => {
 
     // Handle success response
     console.log('Response from backend:', response.data);
-
+     return response.data
     // Handle the response on the frontend (e.g., update state or show message)
   } catch (error) {
     console.error('Error sending consignment data:', error.message);

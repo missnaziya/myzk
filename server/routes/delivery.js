@@ -4,7 +4,7 @@ const router = express.Router();
 
 
 // Import the controller function for verifying the pincode
-const { verifyPincode } = require("../controllers/delivery");
+const { verifyPincode, getCities, getStates } = require("../controllers/delivery");
 const { bookShipment } = require("../controllers/delivery");
 
 // // Route for verifying the pincode
@@ -20,8 +20,10 @@ const { bookShipment } = require("../controllers/delivery");
 //   deleteContactForm    // For deleting a specific contact form
 // } = require('../controllers/contact');
 
-router.route("/verify-pincode").post(verifyPincode);
+router.route("/cities").get(getCities);
+router.route("/states").get(getStates);
 
+router.route("/verify-pincode").post(verifyPincode);
 // router.route("/verify-pincode").post(verifyPincode);
 
 router.route("/book-shipment").post(bookShipment);
