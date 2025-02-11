@@ -5,7 +5,8 @@ const OfferBanner = () => {
   return (
     <section
       style={{
-        backgroundImage: "url('/offbanner.webp')",
+        // backgroundImage: "url('/offerbanner1.jpg')",
+        backgroundImage: "url('/offerbanner1.jpg')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         padding: '10rem 0',
@@ -13,7 +14,7 @@ const OfferBanner = () => {
     >
       <Container>
         <Box display="flex" justifyContent="center" alignItems="center">
-          <Box textAlign="center">
+          <Box textAlign="center" sx={{visibility:"hidden"}}>
             <Typography variant="h5" sx={{ textTransform: 'uppercase', mb: 4 }}>
               All Products
             </Typography>

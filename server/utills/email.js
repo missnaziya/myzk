@@ -6,13 +6,14 @@ require('dotenv').config(); // Load environment variables
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: process.env.EMAIL_USER || "missnaziya24@gmail.com", // From .env
-                pass: process.env.EMAIL_PASS || "mtjb ubjs ckyn jbal",  // From .env (App Password)
-                // user: process.env.EMAIL_USER || "myzkdtm@gmail.com", // From .env
-                // pass: process.env.EMAIL_PASS || "ocbu zuli wpln yyaq",  // From .env (App Password)
+                // user: process.env.EMAIL_USER || "missnaziya24@gmail.com", // From .env
+                // pass: process.env.EMAIL_PASS || "mtjb ubjs ckyn jbal",  // From .env (App Password)
+                user: process.env.EMAIL_USER || "myzkdtm@gmail.com", // From .env
+                pass: process.env.EMAIL_PASS || "ocbu zuli wpln yyaq",  // From .env (App Password)
    
                 
             },
+            
             tls: {
                 rejectUnauthorized: false // Ignore self-signed certificate issues
             }

@@ -4,6 +4,8 @@ const { sendEmail } = require("../utills/email");
 const prisma = new PrismaClient();
 
 async function createCustomerOrder(request, response) {
+  console.log("nazz");
+  
   try {
     const {
       name,
@@ -36,6 +38,44 @@ async function createCustomerOrder(request, response) {
         orderNotice,
         total,
       },
+    });
+
+    console.log("c_order",corder);
+    
+    await sendEmail({
+      to: email,  // Admin email
+      subject: "New Order Placed - Myzk",  // Static subject
+      text: "A new order has been placed on Myzk.", // Plain text fallback
+      html: `
+        <html>
+          <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
+            <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; padding: 20px;">
+              <tr>
+                <td style="text-align: center; padding: 20px;">
+                  <h1 style="color: #333333;">New Order Placed</h1>
+                  <p style="font-size: 16px; color: #555555;">A new order has been placed on Myzk.</p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 20px; font-size: 16px; color: #333333;">
+                <h2 style="border-bottom: 2px solid #4CAF50; padding-bottom: 5px;">Order Summary</h2>
+                  <p><strong>Order ID:</strong> ${corder.id}</p>
+                  <p><strong>Customer Name:</strong> ${corder.name}</p>
+                  <p><strong>Email Address:</strong> ${corder.email}</p>
+                  <p><strong>Total Amount:</strong>${corder.total} </p>
+                
+                  <p style="text-align: right; font-size: 18px; margin-top: 10px;"><strong>Grand Total: ₹${corder.total}</strong></p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 20px; text-align: center;">
+                  <a href="https://myzk.in" style="display: inline-block; padding: 10px 20px; font-size: 16px; color: #ffffff; background-color: #4CAF50; border-radius: 5px; text-decoration: none;">View Details</a>
+                </td>
+              </tr>
+            </table>
+          </body>
+        </html>
+      `
     });
     // customer_order
     // const from = "tesmist"

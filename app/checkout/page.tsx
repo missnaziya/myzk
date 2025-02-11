@@ -222,28 +222,7 @@ const CheckoutPage = () => {
         return;
       }
 
-      // if (!isValidNameOrLastname(checkoutForm.cardName)) {
-      //   toast.error("You entered invalid format for card name");
-      //   return;
-      // }
-
-      // if (!isValidCardNumber(checkoutForm.cardNumber)) {
-      //   toast.error("You entered invalid format for credit card number");
-      //   return;
-      // }
-
-      // if (!isValidCreditCardExpirationDate(checkoutForm.expirationDate)) {
-      //   toast.error(
-      //     "You entered invalid format for credit card expiration date"
-      //   );
-      //   return;
-      // }
-
-      // if (!isValidCreditCardCVVOrCVC(checkoutForm.cvc)) {
-      //   toast.error("You entered invalid format for credit card CVC or CVV");
-      //   return;
-      // }
-
+     
       // sending API request for creating a order
 
       const response = fetch(process.env.NEXT_PUBLIC_BASE_URL + "/api/orders", {
@@ -489,8 +468,8 @@ setTax( Math.floor(((shippingDetails?.shippingCost || 0) + (total || 0)) * 0.18)
 
             <dl className="hidden space-y-6 border-t border-gray-200 pt-6 text-sm font-medium text-gray-900 lg:block">
               <div className="flex items-center justify-between">
-                <dt className="text-gray-600">Subtotal</dt>
-                <dd>₹{total}</dd>
+                <dt className="text-gray-600">Subtotal </dt>
+                <dd>₹{total+tax}</dd>
               </div>
 
               <div className="flex items-center justify-between">
@@ -498,16 +477,14 @@ setTax( Math.floor(((shippingDetails?.shippingCost || 0) + (total || 0)) * 0.18)
                 <dd>₹ {serviceStatus && shippingDetails?.shippingCost}</dd>
               </div>
 
-              <div className="flex items-center justify-between">
+              {/* <div className="flex items-center justify-between">
                 <dt className="text-gray-600">Taxes 18% </dt>
                 <dd>₹ 
                 {serviceStatus && shippingDetails
-                    // ? (shippingDetails?.shippingCost || 0) + (total || 0)
                  ? tax
                     : 0}
-                {/* <dd>₹{total / 5}</dd> */}
                 </dd>
-              </div>
+              </div> */}
 
               <div className="flex items-center justify-between border-t border-gray-200 pt-6">
                 <dt className="text-base">Total</dt>
@@ -782,45 +759,40 @@ setTax( Math.floor(((shippingDetails?.shippingCost || 0) + (total || 0)) * 0.18)
                       />
                     </div>
                   </div> */}
-                  <div>
+                   <div>
                     <label
-                      htmlFor="state"
+                      htmlFor="postal-code"
                       className="block text-sm font-medium text-gray-700"
                     >
-                      State
+                      Postal Code
                     </label>
                     <div className="mt-1">
-                      <select
-                        id="state"
-                        name="state"
+                      <input
+                        type="text"
+                        id="postal-code"
+                        name="postal-code"
+                        autoComplete="postal-code"
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                        value={checkoutForm.state}
-                        onChange={(e) =>
-                          setCheckoutForm({
-                            ...checkoutForm,
-                            state: e.target.value,
-                          })
-                        }
-                      >
-                        <option value="">Select a state</option>
-                        {
-states?.map((state:any)=>(
-  <>
-    
-    <option value={state} >{state}</option>
-
-  </>
-))
-}
-                        {/* <option value="Maharashtra">Maharashtra</option>
-                        <option value="Karnataka">Karnataka</option>
-                        <option value="Tamil Nadu">Tamil Nadu</option>
-                        <option value="Uttar Pradesh">Uttar Pradesh</option>
-                        <option value="West Bengal">West Bengal</option> */}
-                        {/* Add more states as needed */}
-                      </select>
+                        value={checkoutForm.postalCode}
+                        onChange={handlePostalCodeChange}
+                      />
                     </div>
+                    {serviceStatus && checkoutForm.postalCode.length === 6 ? (
+                      <>
+                        <span className="ml-2 text-green-600 text-sm">
+                          *Service Available
+                        </span>
+                      </>
+                    ) : serviceStatus == false &&
+                      checkoutForm.postalCode.length > 0 ? (
+                      <span className="ml-2 text-red-600 text-sm">
+                        *No Service
+                      </span>
+                    ) : (
+                      <></>
+                    )}
                   </div>
+                
 
                   <div>
                     <label
@@ -927,7 +899,45 @@ cities?.map((city:any)=>(
       </div>
                   </div>
                   
+                  <div>
+                    <label
+                      htmlFor="state"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      State
+                    </label>
+                    <div className="mt-1">
+                      <select
+                        id="state"
+                        name="state"
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                        value={checkoutForm.state}
+                        onChange={(e) =>
+                          setCheckoutForm({
+                            ...checkoutForm,
+                            state: e.target.value,
+                          })
+                        }
+                      >
+                        <option value="">Select a state</option>
+                        {
+states?.map((state:any)=>(
+  <>
+    
+    <option value={state} >{state}</option>
 
+  </>
+))
+}
+                        {/* <option value="Maharashtra">Maharashtra</option>
+                        <option value="Karnataka">Karnataka</option>
+                        <option value="Tamil Nadu">Tamil Nadu</option>
+                        <option value="Uttar Pradesh">Uttar Pradesh</option>
+                        <option value="West Bengal">West Bengal</option> */}
+                        {/* Add more states as needed */}
+                      </select>
+                    </div>
+                  </div>
 
                   <div>
                     <label
@@ -979,7 +989,7 @@ cities?.map((city:any)=>(
                     </div>
                   </div> */}
 
-                  <div>
+                  {/* <div>
                     <label
                       htmlFor="postal-code"
                       className="block text-sm font-medium text-gray-700"
@@ -1011,7 +1021,7 @@ cities?.map((city:any)=>(
                     ) : (
                       <></>
                     )}
-                  </div>
+                  </div> */}
 
                   <div className="sm:col-span-3">
                     <label

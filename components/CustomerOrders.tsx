@@ -89,7 +89,7 @@ const CustomerOrders = () => {
                   <input type="checkbox" className="checkbox" />
                 </label>
               </th>
-              <th>Order ID</th>
+              <th>Order No.</th>
               <th>Name and country</th>
               <th>Status</th>
               <th>Subtotal</th>
@@ -100,7 +100,7 @@ const CustomerOrders = () => {
           <tbody>
             {/* row 1 */}
             {orders &&
-              orders.map((order) => (
+              orders.map((order,i) => (
                 <tr key={order?.id}>
                   <th>
                     <label>
@@ -110,7 +110,8 @@ const CustomerOrders = () => {
 
                   <td>
                     <div>
-                      <p className="font-bold">#{order?.id}</p>
+                      <p className="font-bold">{i+1}</p>
+                      {/* <p className="font-bold">#{order?.id}</p> */}
                     </div>
                   </td>
 
@@ -146,7 +147,7 @@ const CustomerOrders = () => {
                   </td>
 
                   <td>
-                    <p>${order?.total}</p>
+                    <p>₹{order?.total}</p>
                   </td>
 
                   <td>

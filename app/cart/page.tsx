@@ -156,7 +156,7 @@ const CartPage = () => {
                   </dt>
                   <dd className="text-sm font-medium text-gray-900">₹0.00</dd>
                 </div>
-                <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+                {/* <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                   <dt className="flex text-sm text-gray-600">
                     <span>Tax estimate</span>
                     <a
@@ -175,7 +175,7 @@ const CartPage = () => {
                   <dd className="text-sm font-medium text-gray-900">
                     ₹{total / 5}
                   </dd>
-                </div>
+                </div> */}
                 <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                   <dt className="text-base font-medium text-gray-900">
                     Order total
